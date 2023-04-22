@@ -7,7 +7,7 @@
       "48": "icon.png"
     },
     "permissions": [
-      "https://ajax.googleapis.com/"
+      "activeTab"
     ],
     "content_scripts": [
       {

@@ -87,7 +87,7 @@ function createBorderElement() {
 }
 
 function processPosters() {
-  const posterLinks = document.querySelectorAll('.jawBone .slider-item');
+  const posterLinks = document.querySelectorAll('.slider-item');
   posterLinks.forEach((poster) => {
     const titleElement = poster.querySelector('.slider-refocus');
     if (titleElement) {
