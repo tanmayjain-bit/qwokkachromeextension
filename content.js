@@ -40,18 +40,22 @@ function fetchIMDbRatingBySearch(title, callback) {
               localStorage.setItem(title, rating);
               callback(rating);
             } else {
-              console.error("Error fetching IMDb rating:", data.Error);
+              console.error(`Error fetching IMDb rating for ${title}:`, data.Error);
+              callback(null);
             }
           })
           .catch((error) => {
-            console.error("Error fetching IMDb rating:", error);
+            console.error(`Error fetching IMDb rating for ${title}:`, error);
+            callback(null);
           });
       } else {
-        console.error("Error fetching IMDb rating: No search results found.");
+        console.error(`Error fetching IMDb rating for ${title}: No search results found.`);
+        callback(null);
       }
     })
     .catch((error) => {
-      console.error("Error fetching IMDb rating:", error);
+      console.error(`Error fetching IMDb rating for ${title}:`, error);
+      callback(null);
     });
 }
 
@@ -76,8 +80,21 @@ function fetchIMDbRating(title, callback) {
       })
       .catch((error) => {
         console.error("Error fetching IMDb rating:", error);
+        callback(null);
       });
   }
+}
+
+function setLoading(poster) {
+  const overlayElement = document.createElement("div");
+  overlayElement.classList.add("overlay");
+  overlayElement.classList.add("loading-overlay");
+  overlayElement.style.backgroundColor = "rgba(0, 0, 0, 0.5)";
+  poster.appendChild(overlayElement);
+}
+
+function unsetLoading(poster) {
+  poster.querySelectorAll(".loading-overlay").forEach(e => e.remove());
 }
 
 function createBorderElement() {
@@ -89,13 +106,27 @@ function createBorderElement() {
 function processPosters() {
   const posterLinks = document.querySelectorAll('.slider-item');
   posterLinks.forEach((poster) => {
+    setLoading(poster);
     const titleElement = poster.querySelector('.slider-refocus');
     if (titleElement) {
       const title = titleElement.getAttribute('aria-label');
-      if (!fetchedTitles.has(title)) {
-        fetchedTitles.add(title);
+      const match = poster.querySelector(".title-card").id.match(/title-card-([0-9]+)-([0-9]+)/);
+      let row = 0;
+      let col = 0;
+      if (match) {
+        row = match[1];
+        col = match[2];
+      }
+      const slug = `${title}-${row}-${col}`;
+
+      if (!fetchedTitles.has(slug)) {
+        fetchedTitles.add(slug);
         fetchIMDbRating(title, (rating) => {
-          if (rating >= 0 && rating < 5) {
+          unsetLoading(poster);
+          if (isNaN(parseInt(rating))) {
+            poster.appendChild(createOverlayElement(0.5));
+            poster.appendChild(createEmojiElement("❔"));
+          } else if (rating < 5) {
             poster.appendChild(createOverlayElement(0.8));
             poster.appendChild(createEmojiElement("💩"));
           } else if (rating >= 5 && rating < 6) {
@@ -104,13 +135,15 @@ function processPosters() {
           } else if (rating >= 6 && rating < 7) {
             poster.appendChild(createOverlayElement(0.5));
             poster.appendChild(createEmojiElement("😐"));
-          } else if (rating >= 7 && rating < 8) {
+          } else if (rating >= 7 && rating < 9) {
             poster.appendChild(createEmojiElement("👍"));
           } else if (rating >= 9) {
             poster.appendChild(createEmojiElement("🔥"));
             poster.appendChild(createBorderElement());
-          }
+          } 
         });
+      } else {
+        unsetLoading(poster);
       }
     }
   });
@@ -127,6 +160,5 @@ function debounce(func, wait) {
 
 const processPostersDebounced = debounce(processPosters, DEBOUNCE_DELAY);
 window.addEventListener("scroll", processPostersDebounced);
-document.addEventListener("DOMContentLoaded", processPostersDebounced);
 
 processPosters();
