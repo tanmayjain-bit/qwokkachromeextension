@@ -1,6 +1,14 @@
 const DEBOUNCE_DELAY = 300;
 let fetchedTitles = new Set();
 
+const counts = {
+  "💩": 0,
+  "👎": 0,
+  "😐": 0,
+  "👍": 0,
+  "🔥": 0,
+};
+
 function createEmojiElement(emoji) {
   const emojiElement = document.createElement("span");
   emojiElement.classList.add("emoji");
@@ -19,6 +27,35 @@ function createBorderElement() {
   const borderElement = document.createElement("div");
   borderElement.classList.add("border-highlight");
   return borderElement;
+}
+
+function setupHeader() {
+  const netflixHeader = document.querySelector(".pinning-header-container");
+  const header = document.createElement("div");
+  header.classList.add("qwokka-header");
+  header.id = "qwokka-header";
+  netflixHeader.insertBefore(header, netflixHeader.firstChild);
+}
+
+function updateHeader() {
+  const total = Object.values(counts).reduce((acc, v) => acc + v, 0);
+  if (total === 0) {
+    return;
+  }
+
+  const header = document.querySelector("#qwokka-header");
+  header.innerHTML = "";
+  const intro = document.createElement("div");
+  intro.classList.add("qwokka-header-intro");
+  intro.innerText = "Netflix served you:"
+  header.appendChild(intro);
+  Object.keys(counts).forEach(key => {
+    const element = document.createElement("div");
+    const percent = ((counts[key] / total) * 100).toFixed();
+    element.innerText = `${percent}% ${key}`;
+    element.classList.add("qwokka-header-item");
+    header.appendChild(element);
+  });
 }
 
 function fetchIMDbRatingBySearch(title, callback) {
@@ -129,18 +166,24 @@ function processPosters() {
           } else if (rating < 5) {
             poster.appendChild(createOverlayElement(0.8));
             poster.appendChild(createEmojiElement("💩"));
+            counts["💩"] += 1;
           } else if (rating >= 5 && rating < 6) {
             poster.appendChild(createOverlayElement(0.65));
             poster.appendChild(createEmojiElement("👎"));
+            counts["👎"] += 1;
           } else if (rating >= 6 && rating < 7) {
             poster.appendChild(createOverlayElement(0.5));
             poster.appendChild(createEmojiElement("😐"));
+            counts["😐"] += 1;
           } else if (rating >= 7 && rating < 9) {
             poster.appendChild(createEmojiElement("👍"));
+            counts["👍"] += 1;
           } else if (rating >= 9) {
             poster.appendChild(createEmojiElement("🔥"));
             poster.appendChild(createBorderElement());
-          } 
+            counts["🔥"] += 1;
+          }
+          updateHeader(); 
         });
       } else {
         unsetLoading(poster);
@@ -161,4 +204,5 @@ function debounce(func, wait) {
 const processPostersDebounced = debounce(processPosters, DEBOUNCE_DELAY);
 window.addEventListener("scroll", processPostersDebounced);
 
+setupHeader();
 processPosters();
