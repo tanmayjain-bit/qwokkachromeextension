@@ -203,6 +203,7 @@ function debounce(func, wait) {
 
 const processPostersDebounced = debounce(processPosters, DEBOUNCE_DELAY);
 window.addEventListener("scroll", processPostersDebounced);
+window.addEventListener("DOMContentLoaded", processPostersDebounced);
 
 setupHeader();
 processPosters();
