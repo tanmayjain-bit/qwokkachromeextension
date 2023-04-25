@@ -43,9 +43,9 @@
   padding: 4px 4%;
   display: flex;
   flex-direction: row;
-  justify-content: space-around;
+  justify-content: center;
   align-items: center;
-  gap: 4px;
+  gap: 8vw;
 }
 
 .qwokka-header-intro {
@@ -54,5 +54,6 @@
 }
 
 .qwokka-header-item {
-  font-size: 1.4vw;
+  font-size: 2vw;
+  font-weight: 500;
 }
