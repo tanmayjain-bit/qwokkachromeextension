@@ -3,9 +3,6 @@ let fetchedTitles = new Set();
 
 const counts = {
   "💩": 0,
-  "👎": 0,
-  "😐": 0,
-  "👍": 0,
   "🔥": 0,
 };
 
@@ -49,7 +46,7 @@ function updateHeader() {
   intro.classList.add("qwokka-header-intro");
   intro.innerText = "Netflix recommended you:"
   header.appendChild(intro);
-  ["💩", "🔥"].forEach(key => {
+  Object.keys(counts).forEach(key => {
     const element = document.createElement("div");
     const percent = ((counts[key] / total) * 100).toFixed();
     element.innerText = `${percent}% ${key}`;
@@ -170,14 +167,11 @@ function processPosters() {
           } else if (rating >= 6 && rating < 7) {
             poster.appendChild(createOverlayElement(0.65));
             poster.appendChild(createEmojiElement("👎"));
-            // counts["👎"] += 1;
           } else if (rating >= 7 && rating < 8) {
             poster.appendChild(createOverlayElement(0.5));
             poster.appendChild(createEmojiElement("😐"));
-            // counts["😐"] += 1;
           } else if (rating >= 8 && rating < 9) {
             poster.appendChild(createEmojiElement("👍"));
-            // counts["👍"] += 1;
           } else if (rating >= 9) {
             poster.appendChild(createEmojiElement("🔥"));
             poster.appendChild(createBorderElement());
